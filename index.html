@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adi-svrd</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --mint: #b8ffe8;
+      --background: #0a0a0a;
+      --neon-hover: #80ffe5;
+      --border: #b8ffe8;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background-color: var(--background);
+      color: var(--mint);
+      font-family: 'Share Tech Mono', monospace;
+      margin: 0;
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    .top-bar {
+      background: var(--background);
+      border-bottom: 2px solid var(--mint);
+      padding: 6px 70px 6px 20px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      z-index: 1001;
+      box-sizing: border-box;
+    }
+
+    .progress-bar {
+      background-color: transparent;
+      border: 2px solid var(--mint);
+      height: 100%;
+      width: 100%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      overflow: hidden;
+      font-weight: bold;
+      box-sizing: border-box;
+    }
+
+    .progress-bar-fill {
+      background-color: #b8ffe8;
+      height: 100%;
+      width: 0%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      transition: width 0.5s ease-in-out;
+    }
+
+    #progress-text
+    {
+      color: var(--mint);
+      z-index: 1;
+      font-size: 16px;
+      pointer-events: none;
+      position: relative;
+      font-weight: bold;
+      transition: color 0.3s ease;
+    }
+    .progress-bar-title {
+      color: var(--background);
+      z-index: 1;
+      font-size: 22px;
+      pointer-events: none;
+      position: relative;
+      font-weight: bold;
+      transition: color 0.3s ease;
+    }
+    .invert-text {
+      color: var(--mint) !important;
+    }
+
+    .grid {
+      margin-top: 80px;
+      display: grid;
+      grid-template-columns: repeat(40, 1fr);
+      gap: 8px;
+      font-size: 16px;
+      text-align: center;
+    }
+
+    .number {
+      color: var(--mint) !important;
+      font-weight: bold;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      font-size: 16px !important;
+    }
+
+    .number:hover {
+      color: var(--neon-hover);
+      text-shadow: 0 0 4px var(--neon-hover), 0 0 8px var(--neon-hover);
+    }
+
+    .boxes {
+      display: flex;
+      justify-content: space-around;
+      gap: 10px;
+      margin-top: auto;
+      margin-bottom: 40px;
+    }
+
+    .box {
+      flex: 1;
+      border: 2px solid var(--border);
+      text-align: center;
+      padding: 16px;
+      font-size: 20px;
+      font-weight: bold;
+      background: transparent;
+      color: var(--mint);
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .box.filled {
+      background-color: var(--mint) !important;
+      color: var(--background) !important;
+    }
+
+    .box-popup, #info-box {
+      background: #111;
+      color: var(--mint);
+      border: 2px solid var(--mint);
+      padding: 20px;
+      width: 300px;
+      z-index: 1002;
+      text-align: center;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
+    }
+
+    #blur-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      backdrop-filter: blur(6px);
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      display: none;
+    }
+
+    /* CRT Static Overlay */
+    #crt-static {
+      pointer-events: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 9999;
+      background-image: url(Perfect_CRT.png);
+      background-size: cover;
+      mix-blend-mode: overlay;
+      opacity: 0.8;
+    }
+
+    /* CRT Curved Screen Effect */
+    body {
+      transform: perspective(1200px) scale(1) rotateX(2deg);
+      transform-origin: center;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <div class="progress-bar">
+      <div class="progress-bar-fill" id="progress-fill"></div>
+      <div class="progress-bar-title">Adi-svrd</div>
+      <div id="progress-text">0% Complete</div>
+    </div>
+  </div>
+  <div class="grid" id="grid" style="font-size: 28px; gap: 8px; margin-top: 80px; flex-grow: 1;"></div>
+  <div class="boxes" style="margin-top: auto; margin-bottom: 40px;">
+    <div class="box" id="box0"><span class="label">About</span><br /><span class="percent">0%</span></div>
+    <div class="box" id="box1"><span class="label">Projects</span><br /><span class="percent">0%</span></div>
+    <div class="box" id="box2"><span class="label">Experience</span><br /><span class="percent">0%</span></div>
+    <div class="box" id="box3"><span class="label">Contact</span><br /><span class="percent">0%</span></div>
+  </div>
+
+  <div class="box-popup" id="popup0" style="display: none; position: fixed; background: whitesmoke; color: black; border: 1px solid #00ccff; padding: 20px; width: 700px; z-index: 1002;">
+    <div style = "text-align: left; display: flex;" >
+      <img src="adiascii.png" alt="" width="300px" height="auto">
+      <p style="display: flex; text-align: left; font-size: 20px; padding-left: 15px;">
+        Hi! I'm Adi and I study Computer Science at the University of Victoria. I have a passion for building/making cool stuff especially where software meets design. I’ve worked on projects ranging from web apps and databases to GIS mapping and designing notification systems.
+        Outside of tech, I’m into graphic design, fitness, and exploring the various ways creatives put their work out into the world.
+      </p>
+    </div>
+  </div>
+  <div class="box-popup" id="popup1" style="display: none; position: fixed; background: whitesmoke; color: black; border: 1px solid #00ccff; padding: 20px; width: 700px; z-index: 1002;">
+    <a href="https://adilal-portfolio.vercel.app/" target="_blank" style="font-size: 25px;">Graphics Design Portfolio</a> <br><br><br><br>
+    <a href="https://github.com/Aadilol" target="_blank" style="font-size: 25px;">Github Profile</a>
+  </div>
+  <div class="box-popup" id="popup2" style="display: none; position: fixed; background: whitesmoke; color: black; border: 1px solid #00ccff; padding: 20px; width: 700px; z-index: 1002; font-size: 20px;">
+    Data Assistant<br>BC Public Service<br>Ministry of Energy Mines and Low Carbon Innovation<br>
+    Sept.2023–Aug.2024 <br> <br>
+    Designer (Freelance)<br>Graphic Design and Sales Partnership<br>
+    Apr.2023–Sept.2023
+  </div>
+  <div class="box-popup" id="popup3" style="display: none; position: fixed; background: whitesmoke; color: black; border: 1px solid #00ccff; padding: 20px; width: 700px; z-index: 1002; font-size: 20px;">
+    <a href="mailto:adilal2711@gmail.com">adilal2711@gmail.com</a> 
+  </div>
+ 
+  <div id="info-box" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #111; color: #00ccff; border: 1px solid #00ccff; padding: 40px; width: 700px; text-align: center; font-family: 'Share Tech Mono', monospace; z-index: 1001; display: block;">
+    <p style="font-size: 25px;">Click on the numbers when they speak to you.<br><br>
+    </p>
+    <p style="font-size: 15px;">Inspired by the MDR Experience from the TV series "Severance" (2022).</p>
+  </div>
+  <div id="info-icon" style="position: fixed; top: 15px; right: 12px; cursor: pointer; z-index: 1001; color: var(--mint); font-size: 25px; font-weight: bold;">(i)</div>
+
+  <div id="blur-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; backdrop-filter: blur(6px); background: rgba(0, 0, 0, 0.5); z-index: 1000; display: none;"></div>
+
+  <script>
+    const gridEl = document.getElementById("grid");
+    const progressText = document.getElementById("progress-text");
+    const progressFill = document.getElementById("progress-fill");
+    let filled = 0;
+    const rows = 10;
+    const cols = 40;
+    let clickableCluster = new Set();
+    let clusterClicked = false;
+
+    function renderGrid() {
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const val = Math.floor(Math.random() * 10);
+          const div = document.createElement("div");
+          div.className = "number";
+          div.textContent = val;
+          div.dataset.row = r;
+          div.dataset.col = c;
+          gridEl.appendChild(div);
+        }
+      }
+    }
+
+    function jiggleAround(x, y) {
+      const bounds = gridEl.getBoundingClientRect();
+      const colWidth = bounds.width / cols;
+      const rowHeight = bounds.height / rows;
+      const c = Math.floor((x - bounds.left) / colWidth);
+      const r = Math.floor((y - bounds.top) / rowHeight);
+
+      for (let i = r; i < r + 5 && i < rows; i++) {
+        for (let j = c; j < c + 5 && j < cols; j++) {
+          const index = i * cols + j;
+          const el = gridEl.children[index];
+          if (!el || el.classList.contains("active")) continue;
+          el.animate([
+            { transform: "scale(1.25) rotate(3deg)" },
+            { transform: "scale(1.25) rotate(-3deg)" },
+            { transform: "scale(1) rotate(0deg)" }
+          ], {
+            duration: 300,
+            iterations: 1
+          });
+        }
+      }
+    }
+
+    gridEl.addEventListener("mousemove", (e) => {
+      jiggleAround(e.clientX, e.clientY);
+    });
+
+    function activateRandomCluster() {
+      clusterClicked = false;
+      const size = Math.random() > 0.5 ? 5 : 6;
+      const startRow = Math.floor(Math.random() * (rows - size));
+      const startCol = Math.floor(Math.random() * (cols - size));
+
+      const cluster = [];
+      const allNumbers = document.querySelectorAll(".number");
+      allNumbers.forEach(el => {
+        el.classList.remove("active");
+        el.style.transform = "scale(1) rotate(0deg) translate(0, 0)";
+        el.style.transition = "none";
+        el.style.textShadow = "none";
+        el.style.color = "#00ccff";
+      });
+      clickableCluster.clear();
+
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          const row = startRow + r;
+          const col = startCol + c;
+          const el = gridEl.children[row * cols + col];
+          el.classList.add("active");
+          el.dataset.cluster = "true";
+          cluster.push(el);
+
+          let step = 0;
+          const totalDuration = 500 + Math.floor(Math.random() * 150);
+          const maxScale = 2 + Math.random();
+          clickableCluster.add(el);
+
+          const animate = () => {
+            if (!el.classList.contains("active")) return;
+            const progress = step / totalDuration;
+            const ease = 0.5 - Math.cos(Math.PI * progress) / 2;
+            const scale = 1 + ease * (maxScale - 1);
+            el.style.transform = `scale(${scale.toFixed(3)}) rotate(${(Math.random() * 4 - 2).toFixed(1)}deg)`;
+            step++;
+            if (step <= totalDuration) {
+              requestAnimationFrame(animate);
+            } else {
+              const shrinkDuration = 100 + Math.floor(Math.random() * 100);
+              let shrinkStep = 0;
+              const shrink = () => {
+                el.style.transform = `scale(1) rotate(0deg)`;
+                shrinkStep++;
+                if (shrinkStep <= shrinkDuration) {
+                  requestAnimationFrame(shrink);
+                } else {
+                  el.classList.remove("active");
+                  clickableCluster.delete(el);
+                }
+              };
+              requestAnimationFrame(shrink);
+            }
+          };
+          setTimeout(() => requestAnimationFrame(animate), Math.random() * 800);
+        }
+      }
+
+      cluster.forEach((el) => {
+        el.onclick = () => {
+          if (clusterClicked || !clickableCluster.has(el)) return;
+          clusterClicked = true;
+          cluster.forEach(numEl => {
+            clickableCluster.delete(numEl);
+            numEl.dataset.cluster = "false";
+          });
+
+          const boxEl = document.getElementById("box" + filled);
+          const boxRect = boxEl.getBoundingClientRect();
+
+          cluster.forEach((numEl, index) => {
+            const rect = numEl.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            const targetX = boxRect.left + boxRect.width / 2;
+            const targetY = boxRect.top + boxRect.height / 2;
+            const deltaX = targetX - centerX + window.scrollX;
+            const deltaY = targetY - centerY + window.scrollY;
+
+            const animation = numEl.animate([
+              { transform: 'translate(0, 0) scale(1)' },
+              { transform: `translate(${deltaX}px, ${deltaY}px) scale(0.8)` }
+            ], {
+              duration: 1200,
+              easing: 'ease-in-out'
+            });
+
+            animation.onfinish = () => {
+              numEl.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(0.8)`;
+            };
+          });
+
+          setTimeout(() => {
+            cluster.forEach((numEl) => {
+              const newVal = Math.floor(Math.random() * 10);
+              numEl.textContent = newVal;
+              numEl.style.transition = "none";
+              numEl.style.transform = "scale(1) rotate(0deg) translate(0, 0)";
+              numEl.classList.remove("active");
+            });
+            const percentSpan = boxEl.querySelector('.percent');
+            if (percentSpan) percentSpan.textContent = "100%";
+            boxEl.classList.add("filled");
+            setTimeout(() => boxEl.classList.remove("filled"), 1200);
+            filled++;
+            progressFill.style.width = `${filled * 25}%`;
+            progressFill.classList.add("pulse");
+            setTimeout(() => progressFill.classList.remove("pulse"), 500);
+            progressText.textContent = `${filled * 25}% Complete`;
+
+            const currentBox = document.getElementById("box" + (filled - 1));
+            const currentPopup = document.getElementById("popup" + (filled - 1));
+            currentBox.style.cursor = 'pointer';
+            currentBox.addEventListener('click', () => {
+              document.getElementById("blur-overlay").style.display = "block";
+              currentPopup.style.display = "block";
+            });
+          }, 1800);
+        };
+      });
+    }
+
+    renderGrid();
+    setTimeout(() => activateRandomCluster(), 1000);
+    setInterval(activateRandomCluster, 6000);
+
+    const infoBox = document.getElementById("info-box");
+    const blurOverlay = document.getElementById("blur-overlay");
+    const infoIcon = document.getElementById("info-icon");
+    document.addEventListener("click", (e) => {
+      if (infoBox.style.display === "none") return;
+      if (!infoBox.contains(e.target) && e.target !== infoIcon) {
+        infoBox.style.display = "none";
+        document.getElementById("blur-overlay").style.display = "none";
+      }
+    });
+    infoIcon.addEventListener("click", () => {
+      blurOverlay.style.display = "block";
+      infoBox.style.display = "block";
+      document.getElementById("blur-overlay").style.display = "block";
+      blurOverlay.style.display = "block";
+      document.getElementById("blur-overlay").style.display = "block";
+    });
+
+    document.addEventListener("click", (e) => {
+      for (let i = 0; i < 4; i++) {
+        const popup = document.getElementById("popup" + i);
+        const box = document.getElementById("box" + i);
+        if (popup.style.display === "block" && !popup.contains(e.target) && e.target !== box) {
+          popup.style.display = "none";
+          document.getElementById("blur-overlay").style.display = "none";
+        }
+      }
+    });
+
+    window.onload = () => {
+      document.getElementById('info-box').style.display = 'block';
+      document.getElementById('blur-overlay').style.display = 'block';
+
+      // Force boxes to stay filled visually
+      document.querySelectorAll('.box').forEach(box => {
+        box.addEventListener('DOMSubtreeModified', () => {
+          if (box.innerHTML.includes('100%')) {
+            box.classList.add('filled');
+          }
+        });
+      });
+    };
+  </script>
+  <div id="crt-static"></div>
+
+</body>
+</html>
