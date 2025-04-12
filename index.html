@@ -280,6 +280,10 @@
       }
     }
 
+    gridEl.addEventListener("mousemove", (e) => {
+      jiggleAround(e.clientX, e.clientY);
+    });
+
     function activateRandomCluster() {
       clusterClicked = false;
       const size = Math.random() > 0.5 ? 5 : 6;
@@ -450,43 +454,6 @@
         });
       });
     };
-    gridEl.addEventListener("mousemove", (e) => {
-    const target = e.target;
-    if (!target.classList.contains("number")) return;
-  
-    const row = parseInt(target.dataset.row);
-    const col = parseInt(target.dataset.col);
-  
-    for (let i = row - 1; i <= row + 1; i++) {
-      for (let j = col - 1; j <= col + 1; j++) {
-        if (i < 0 || j < 0 || i >= rows || j >= cols) continue;
-  
-        const neighbor = gridEl.children[i * cols + j];
-        if (!neighbor || neighbor.classList.contains("active")) continue;
-  
-        if (!neighbor.dataset.bouncing || neighbor.dataset.bouncing === "false") {
-          neighbor.dataset.bouncing = "true";
-  
-          const bounceX = (Math.random() - 0.5) * 10;
-          const bounceY = (Math.random() - 0.5) * 10;
-          const scale = 1 + Math.random() * 0.2;
-  
-          neighbor.animate([
-            { transform: "translate(0, 0) scale(1)" },
-            { transform: `translate(${bounceX}px, ${bounceY}px) scale(${scale.toFixed(2)})` },
-            { transform: "translate(0, 0) scale(1)" }
-          ], {
-            duration: 500,
-            easing: "ease-out",
-            fill: "forwards"
-          }).onfinish = () => {
-            neighbor.dataset.bouncing = "false";
-          };
-        }
-      }
-    }
-  });
-
   </script>
   <div id="crt-static"></div>
 
