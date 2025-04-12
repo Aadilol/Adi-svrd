@@ -280,10 +280,6 @@
       }
     }
 
-    gridEl.addEventListener("mousemove", (e) => {
-      jiggleAround(e.clientX, e.clientY);
-    });
-
     function activateRandomCluster() {
       clusterClicked = false;
       const size = Math.random() > 0.5 ? 5 : 6;
