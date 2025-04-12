@@ -263,8 +263,8 @@
       const c = Math.floor((x - bounds.left) / colWidth);
       const r = Math.floor((y - bounds.top) / rowHeight);
 
-      for (let i = r; i < r + 5 && i < rows; i++) {
-        for (let j = c; j < c + 5 && j < cols; j++) {
+      for (let i = r; i < r + 3 && i < rows; i++) {
+        for (let j = c; j < c + 3 && j < cols; j++) {
           const index = i * cols + j;
           const el = gridEl.children[index];
           if (!el || el.classList.contains("active")) continue;
